@@ -449,7 +449,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Condition: DeployLambda
     Properties:
-      TemplateURL: https://dmorris-test-localzones.s3.ap-southeast-2.amazonaws.com/network-border-group-lambda.yaml
+      TemplateURL: https://raw.githubusercontent.com/chkp-dmorris/AWS-Extended-zone/refs/heads/main/template/common/network-border-group-lambda.yaml
       Parameters:
         SubnetId: !Ref PublicSubnet
 
