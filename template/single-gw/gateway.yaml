@@ -7,6 +7,7 @@ Metadata:
           default: VPC Network Configuration
         Parameters:
           - VPC
+          - IsLocalZoneDeployment # Set to 'true' if deploying into AWS Local Zones
           - PublicSubnet
           - PrivateSubnet
           - InternalRouteTable
@@ -458,7 +459,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Condition: DeployLambda
     Properties:
-      TemplateURL: https://dmorris-test-localzones.s3.ap-southeast-2.amazonaws.com/network-border-group-lambda.yaml
+      TemplateURL: https://dmorris-test-localzones.s3.amazonaws.com/network-border-group-lambda.yaml
       Parameters:
         SubnetId: !Ref PublicSubnet
 
@@ -638,6 +639,16 @@ Resources:
       AllocationId: !GetAtt PublicAddress.AllocationId
       PrivateIpAddress: !GetAtt ExternalNetworkInterface.PrimaryPrivateIpAddress
 Outputs:
+  DebugNetworkBorderGroup:
+    Description: Lambda-determined NetworkBorderGroup for EIP allocation
+    Value: !If
+      - DeployLambda
+      - !GetAtt NetworkBorderGroupStack.Outputs.NetworkBorderGroup
+      - "Not used (Regional deployment)"
+
+  DebugSubnetAZ:
+    Description: Availability Zone of the PublicSubnet
+    Value: !Select [0, !GetAZs ""]
   PublicAddress:
     Description: The public address of the Check Point instance.
     Value: !Ref PublicAddress
