@@ -7,6 +7,7 @@ Metadata:
           default: VPC Network Configuration
         Parameters:
           - VPC
+          - IsLocalZoneDeployment # Set to 'true' if deploying into AWS Local Zones
           - PublicSubnet
           - PrivateSubnet
           - InternalRouteTable
@@ -111,6 +112,13 @@ Parameters:
     Description: Select an existing VPC.
     Type: AWS::EC2::VPC::Id
     MinLength: 1
+  IsLocalZoneDeployment:
+    Description: Set to 'true' if the selected subnets are in an AWS Local Zone. Set to 'false' for Regional Zone deployments. (Internal parameter, typically set by the master template)
+    Type: String
+    Default: false
+    AllowedValues:
+      - true
+      - false
   PublicSubnet:
     Description: The public subnet of the cluster. The cluster's public IPs will be generated from this subnet. The subnet's route table must have 0.0.0.0/0 route to Internet Gateway.
     Type: AWS::EC2::Subnet::Id
@@ -288,13 +296,6 @@ Parameters:
     AllowedValues:
       - true
       - false
-  IsLocalZoneDeployment:
-    Description: Internal parameter - indicates if this is a Local Zone deployment (set by master template)
-    Type: String
-    Default: false
-    AllowedValues:
-      - true
-      - false
   VolumeSize:
     Type: Number
     Default: 100
@@ -449,7 +450,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Condition: DeployLambda
     Properties:
-      TemplateURL: https://raw.githubusercontent.com/chkp-dmorris/AWS-Extended-zone/refs/heads/main/template/common/network-border-group-lambda.yaml
+      TemplateURL: https://dmorris-test-localzones.s3.amazonaws.com/network-border-group-lambda.yaml
       Parameters:
         SubnetId: !Ref PublicSubnet
 
