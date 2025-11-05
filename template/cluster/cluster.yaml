@@ -7,9 +7,9 @@ Metadata:
           default: VPC Network Configuration
         Parameters:
           - VPC
-          - IsLocalZoneDeployment # Set to 'true' if deploying into AWS Local Zones
           - PublicSubnet
           - PrivateSubnet
+          - IsLocalZoneDeployment # Set to 'true' if deploying into AWS Local Zones
           - InternalRouteTable
       - Label:
           default: EC2 Instance Configuration
@@ -55,6 +55,8 @@ Metadata:
         default: Public subnet
       PrivateSubnet:
         default: Private subnet
+      IsLocalZoneDeployment:
+        default: Deploy in AWS Local Zone
       InternalRouteTable:
         default: Internal route table
       GatewayName:
@@ -112,13 +114,6 @@ Parameters:
     Description: Select an existing VPC.
     Type: AWS::EC2::VPC::Id
     MinLength: 1
-  IsLocalZoneDeployment:
-    Description: Set to 'true' if the selected subnets are in an AWS Local Zone. Set to 'false' for Regional Zone deployments. (Internal parameter, typically set by the master template)
-    Type: String
-    Default: false
-    AllowedValues:
-      - true
-      - false
   PublicSubnet:
     Description: The public subnet of the cluster. The cluster's public IPs will be generated from this subnet. The subnet's route table must have 0.0.0.0/0 route to Internet Gateway.
     Type: AWS::EC2::Subnet::Id
@@ -127,6 +122,13 @@ Parameters:
     Description: The private subnet of the cluster. The cluster's private IPs will be generated from this subnet.
     Type: AWS::EC2::Subnet::Id
     MinLength: 1
+  IsLocalZoneDeployment:
+    Description: Set to 'true' if the selected subnets are in an AWS Local Zone. Set to 'false' for Regional Zone deployments. (Internal parameter, typically set by the master template)
+    Type: String
+    Default: false
+    AllowedValues:
+      - true
+      - false
   InternalRouteTable:
     Description: The route table id in which to set 0.0.0.0/0 route to the Active Cluster member instance in this route table (e.g. rtb-12a34567). Route table cannot have an existing 0.0.0.0/0 route. If empty - traffic will not be routed through the Security Cluster, this requires manual configuration in the route table. (optional)
     Type: String
