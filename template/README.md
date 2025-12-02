@@ -58,3 +58,12 @@ Replace `ap-southeast-2-per-1a` and `ap-southeast-2` with your desired Local Zon
 - [AWS Local Zones Features](https://aws.amazon.com/about-aws/global-infrastructure/localzones/features/)
 - [Check Point support for AWS Local Zones](https://support.checkpoint.com/results/sk/sk183726)
 
+## Reference: Enhancing Cloud Security with Check Point CloudGuard in AWS Local Zones (sk183726)
+- Link: https://support.checkpoint.com/results/sk/sk183726
+- Key points:
+  - Architecture and best practices for deploying CloudGuard in AWS Local Zones.
+  - Networking specifics: Network Border Groups, EIP association rules, routing considerations.
+  - Template guidance and operational tips for HA clusters and single gateways.
+  - Troubleshooting hints for metadata services and HA/failover events.
+Use this SK alongside the templates in `single-gw/` and `cluster/` when planning and validating Local Zone deployments.
+
