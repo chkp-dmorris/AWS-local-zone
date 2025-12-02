@@ -23,6 +23,31 @@ After uploading, update the following line in your main template to use the S3 U
 Replace `<your-bucket>` and the path with your actual S3 bucket and file location.
 
 CloudFormation does **not** reliably support GitHub URLs for nested stacks. Always use S3 for production deployments.
+
+## Important Deployment Considerations for Local Zones
+
+### 1. Check the Local Zone Feature Matrix
+Each Local Zone has unique support for instance types and EBS volume types.
+- **Example:** Perth, Australia (`ap-southeast-2-per-1a`) only supports `c5.2xlarge` and `gp2` volumes.
+- Using unsupported types results in CloudFormation failure.
+- **Reference:** [Local Zones Features](https://aws.amazon.com/about-aws/global-infrastructure/localzones/features/)
+
+### 2. Elastic IP (EIP) Deployment in Local Zones
+
+#### ✅ Automated EIP Assignment (Preferred)
+To deploy a public EIP in a Local Zone, CloudFormation uses a Lambda function with:
+```yaml
+ManagedPolicyArns:
+  - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+```
+This enables assignment within the Network Border Group of the Local Zone.
+
+#### ⚠️ If Lambda Is Restricted
+- Deploy without a public EIP
+- After deployment:
+  - Manually allocate an EIP in the Local Zone's Network Border Group
+  - Associate the EIP to the instance via AWS Console or CLI
+
 ## How to Find Supported EC2 Instance Types in a Local Zone
 To list available EC2 instance types in a specific Local Zone, use the following AWS CLI command:
 
