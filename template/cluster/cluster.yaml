@@ -843,7 +843,7 @@ Rules:
       - AssertDescription: "Smart-1 Cloud Token for member B can not be empty."
         Assert: !Equals [ !Ref MemberAToken, '' ]
   MembersTokenValueEquals:
-    RuleCondition: !EachMemberEquals [!Ref MemberBToken, !Ref MemberAToken]
+    RuleCondition: !EachMemberEquals [[!Ref MemberAToken], !Ref MemberBToken]
     Assertions:
       - AssertDescription: "The same Smart-1 Cloud token is used for the two Cluster members. Each Cluster member must have a unique token"
         Assert: !Equals [ !Ref MemberAToken, '' ]

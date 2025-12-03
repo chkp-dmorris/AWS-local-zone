@@ -455,7 +455,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     DependsOn: VPCStack
     Properties:
-      TemplateURL: https://cgi-cfts.s3.amazonaws.com/cluster/cluster.yaml
+      TemplateURL: https://dmorris-test-localzones.s3.ap-southeast-2.amazonaws.com/cluster.yaml
       Parameters:
         VPC: !GetAtt VPCStack.Outputs.VPCID
         PublicSubnet: !GetAtt VPCStack.Outputs.PublicSubnet1ID
