@@ -335,7 +335,6 @@ def update_cross_az_cluster_map(interface, map_path, describe_flag=True):
         logger.error("Failed to import /etc/cloud_config_utils.py")
         return
 
-    global _cross_az_cluster_ip_map
     internal_if = is_internal_interface_type(interface)
     if internal_if or is_cross_az_map_file_empty(CROSS_AZ_CLUSTER_SEC_IP_MAP):
         return
@@ -1368,7 +1367,6 @@ def multiple_vips_diagnostic() -> None:
 
 def main():
     """Main function of aws_had logic"""
-    global MIGRATE_OBJECT
     args = parse_args()
     if args.debug:
         logger.setLevel(logging.DEBUG)
