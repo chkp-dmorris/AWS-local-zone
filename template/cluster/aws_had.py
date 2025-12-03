@@ -1368,7 +1368,6 @@ def multiple_vips_diagnostic() -> None:
 
 def main():
     """Main function of aws_had logic"""
-    global MIGRATE_OBJECT
     args = parse_args()
     if args.debug:
         logger.setLevel(logging.DEBUG)

@@ -403,7 +403,6 @@ Parameters:
     ConstraintDescription: A valid hostname label or an empty string.
   AllowUploadDownload:
     Description: Automatically download updates and share statistical data for product improvement purpose.
-      Improve product experience by sending data to Check Point
     Type: String
     Default: true
     AllowedValues:
@@ -685,7 +684,7 @@ Resources:
               - !Join ['', ['    maintenance_pwd_hash="$(echo ', 'Fn::Base64': !Ref GatewayMaintenancePasswordHash, ')"']]
               - !Join ['', ['    bootstrap="$(echo ', 'Fn::Base64': !Ref GatewayBootstrapScript, ')"']]
               - !Sub ['    version=${Version}', {Version: !Select [0, !Split ['-', !Ref GatewayVersion]]}]
-              - '    python3 /etc/cloud_config.py enableCloudWatch=\"${cw}\" waitHandle=\"${wait_handle}\" sicKey=\"${sic}\" "smart1CloudToken=\"${tokenA}\"" installationType=\"cluster\" osVersion=\"${version}\" allowUploadDownload=\"${allow_info}\" templateVersion=\"20240204\" templateName=\"cluster\" shell=\"${admin_shell}\" enableInstanceConnect=\"${eic}\" hostName=\"${hostname}\" ntpPrimary=\"${ntp1}\" ntpSecondary=\"${ntp2}\" passwordHash=\"${pwd_hash}\" MaintenanceModePassword=\"${maintenance_pwd_hash}\" elasticIp=\"${eip}\" bootstrapScript64=\"${bootstrap}\"'
+              - '    python3 /etc/cloud_config.py enableCloudWatch="${cw}" waitHandle="${wait_handle}" sicKey="${sic}" "smart1CloudToken="${tokenA}"" installationType="cluster" osVersion="${version}" allowUploadDownload="${allow_info}" templateVersion="20241027" templateName="cluster" shell="${admin_shell}" enableInstanceConnect="${eic}" hostName="${hostname}" ntpPrimary="${ntp1}" ntpSecondary="${ntp2}" passwordHash="${pwd_hash}" MaintenanceModePassword="${maintenance_pwd_hash}" elasticIp="${eip}" bootstrapScript64="${bootstrap}"'
       VersionDescription: Initial template version
   MemberBGatewayLaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
@@ -728,7 +727,7 @@ Resources:
               - !Join ['', ['    maintenance_pwd_hash="$(echo ', 'Fn::Base64': !Ref GatewayMaintenancePasswordHash, ')"']]
               - !Join ['', ['    bootstrap="$(echo ', 'Fn::Base64': !Ref GatewayBootstrapScript, ')"']]
               - !Sub ['    version=${Version}', {Version: !Select [0, !Split ['-', !Ref GatewayVersion]]}]
-              - '    python3 /etc/cloud_config.py enableCloudWatch=\"${cw}\" waitHandle=\"${wait_handle}\" sicKey=\"${sic}\" "smart1CloudToken=\"${tokenB}\"" installationType=\"cluster\" osVersion=\"${version}\" allowUploadDownload=\"${allow_info}\" templateVersion=\"20230923\" templateName=\"cluster\" shell=\"${admin_shell}\" enableInstanceConnect=\"${eic}\" hostName=\"${hostname}\" ntpPrimary=\"${ntp1}\" ntpSecondary=\"${ntp2}\" passwordHash=\"${pwd_hash}\" MaintenanceModePassword=\"${maintenance_pwd_hash}\" elasticIp=\"${eip}\" bootstrapScript64=\"${bootstrap}\"'
+              - '    python3 /etc/cloud_config.py enableCloudWatch="${cw}" waitHandle="${wait_handle}" sicKey="${sic}" "smart1CloudToken="${tokenB}"" installationType="cluster" osVersion="${version}" allowUploadDownload="${allow_info}" templateVersion="20241027" templateName="cluster" shell="${admin_shell}" enableInstanceConnect="${eic}" hostName="${hostname}" ntpPrimary="${ntp1}" ntpSecondary="${ntp2}" passwordHash="${pwd_hash}" MaintenanceModePassword="${maintenance_pwd_hash}" elasticIp="${eip}" bootstrapScript64="${bootstrap}"'
       VersionDescription: Initial template version
   ClusterPublicAddress:
     Type: AWS::EC2::EIP
@@ -844,7 +843,7 @@ Rules:
       - AssertDescription: "Smart-1 Cloud Token for member B can not be empty."
         Assert: !Equals [ !Ref MemberAToken, '' ]
   MembersTokenValueEquals:
-    RuleCondition: !EachMemberEquals [[!Ref MemberBToken], !Ref MemberAToken]
+    RuleCondition: !EachMemberEquals [!Ref MemberBToken, !Ref MemberAToken]
     Assertions:
       - AssertDescription: "The same Smart-1 Cloud token is used for the two Cluster members. Each Cluster member must have a unique token"
         Assert: !Equals [ !Ref MemberAToken, '' ]

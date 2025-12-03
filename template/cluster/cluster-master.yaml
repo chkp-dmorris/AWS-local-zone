@@ -428,13 +428,10 @@ Parameters:
     AllowedPattern: '^[\.a-zA-Z0-9\-]*$'
 Conditions:
   AllocateAddress: !Equals [!Ref AllocatePublicAddress, true]
-  # Detect Local Zone using simple hyphen-count heuristic
-  # Local Zones: us-west-2-lax-1a (4 segments) or ap-southeast-2-per-1a (5 segments)
-  # Regular AZs: us-west-2a (3 segments) or ap-southeast-2a (4 segments)
-  # If there are 4+ hyphens-separated segments, it's likely a Local Zone
-  IsLocalZone: !Not [!Equals [!Select [3, !Split ['-', !Join ['-', [!Ref AvailabilityZone, '---']]]], '']]
-  # Only deploy Lambda for Local Zones with EIPs
-  DeployLambda: !And [!Condition AllocateAddress, !Condition IsLocalZone]
+  # Detect Local Zone by checking if AZ name has 4+ hyphens (e.g., us-east-1-bos-1a has 4 hyphens)
+  # Regular AZs have 2-3 hyphens (e.g., us-east-1a has 2 hyphens)
+  # Split by hyphen and check if index 4 exists (meaning 5+ segments = Local Zone)
+  IsLocalZone: !Not [!Equals [!Select [4, !Split ['-', !Join ['-', [!Ref AvailabilityZone, '----']]]], '']]
 Resources:
   VPCStack:
     Type: AWS::CloudFormation::Stack
@@ -458,7 +455,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     DependsOn: VPCStack
     Properties:
-      TemplateURL: https://dmorris-test-localzones.s3.ap-southeast-2.amazonaws.com/cluster.yaml
+      TemplateURL: https://cgi-cfts.s3.amazonaws.com/cluster/cluster.yaml
       Parameters:
         VPC: !GetAtt VPCStack.Outputs.VPCID
         PublicSubnet: !GetAtt VPCStack.Outputs.PublicSubnet1ID
@@ -468,7 +465,7 @@ Resources:
         GatewayInstanceType: !Ref GatewayInstanceType
         KeyName: !Ref KeyName
         AllocatePublicAddress: !Ref AllocatePublicAddress
-        IsLocalZoneDeployment: !If [IsLocalZone, true, false]
+        IsLocalZoneDeployment: !If [IsLocalZone, 'true', 'false']
         VolumeSize: !Ref VolumeSize
         VolumeType: !Ref VolumeType
         VolumeEncryption: !Ref VolumeEncryption
@@ -540,16 +537,6 @@ Outputs:
   ClusterPrivateAliasInternalAddress:
     Description: The secondary internal private IP address of the cluster.
     Value: !GetAtt ClusterStack.Outputs.ClusterPrivateAliasInternalAddress
-  # Debug outputs for Local Zone detection
-  DebugAvailabilityZone:
-    Description: Debug - The availability zone selected
-    Value: !Ref AvailabilityZone
-  DebugIsLocalZone:
-    Description: Debug - Whether this is detected as a Local Zone deployment
-    Value: !If [IsLocalZone, "true", "false"]
-  DebugDeployLambda:
-    Description: Debug - Whether Lambda will be deployed (Local Zone + EIP)
-    Value: !If [DeployLambda, "true", "false"]
 Rules:
   MemberATokenNotProvided:
     RuleCondition: !Equals [!Ref MemberAToken, '']
@@ -567,4 +554,5 @@ Rules:
       - AssertDescription: "The same Smart-1 Cloud token is used for the two Cluster members. Each Cluster member must have a unique token"
         Assert: !Equals [ !Ref MemberAToken, '' ]
       - AssertDescription: "The same Smart-1 Cloud token is used for the two Cluster members. Each Cluster member must have a unique token"
+
         Assert: !Equals [ !Ref MemberBToken, '' ]
