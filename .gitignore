@@ -1,3 +1,6 @@
 
 .DS_Store
 template/.DS_Store
+
+# Local development tools
+Makefile
