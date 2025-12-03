@@ -431,7 +431,7 @@ def insert_to_cross_az_cluster_ip_map(local_ip, remote_ip, eip):
         }
     }
     """
-    global _cross_az_cluster_ip_map  # noqa: F841
+    global _cross_az_cluster_ip_map
     _cross_az_cluster_ip_map[remote_ip] = {}
     _cross_az_cluster_ip_map[remote_ip][LOCAL_MEM_PRIVATE_IP] = local_ip
     _cross_az_cluster_ip_map[remote_ip][REMOTE_MEM_PRIVATE_IP] = remote_ip
@@ -562,7 +562,7 @@ def remove_invalid_pair_from_exist_cross_az_cluster_ip_map(local_secondary_ips, 
     return: Filter current cross_az_cluster_ip_map from invalid pairs
     Note: This is called only for Cross AZ Cluster
     """
-    global _cross_az_cluster_ip_map  # noqa: F841
+    global _cross_az_cluster_ip_map
     if not _cross_az_cluster_ip_map:
         return None
     invalid_pairs = []
