@@ -30,30 +30,6 @@ If you do not update the Lambda location, the deployment will fail in Local Zone
 
 For more details, refer to the [CloudGuard Network for AWS Security Cluster R80.20 and Higher Deployment Guide](https://sc1.checkpoint.com/documents/IaaS/WebAdminGuides/EN/CloudGuard_Network_for_AWS_Cluster_DeploymentGuide/Default.htm).
 
-## Important Deployment Considerations for Local Zones
-
-### 1. Check the Local Zone Feature Matrix
-Each Local Zone has unique support for instance types and EBS volume types.
-- **Example:** Perth, Australia (`ap-southeast-2-per-1a`) only supports `c5.2xlarge` and `gp2` volumes.
-- Using unsupported types results in CloudFormation failure.
-- **Reference:** [Local Zones Features](https://aws.amazon.com/about-aws/global-infrastructure/localzones/features/)
-
-### 2. Elastic IP (EIP) Deployment in Local Zones
-
-#### ✅ Automated EIP Assignment (Preferred)
-To deploy a public EIP in a Local Zone, CloudFormation uses a Lambda function with:
-```yaml
-ManagedPolicyArns:
-  - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-```
-This enables assignment within the Network Border Group of the Local Zone.
-
-#### ⚠️ If Lambda Is Restricted
-- Deploy without a public EIP
-- After deployment:
-  - Manually allocate an EIP in the Local Zone's Network Border Group
-  - Associate the EIP to the instance via AWS Console or CLI
-
 ## Security Cluster
 
 <table>
@@ -80,79 +56,17 @@ This enables assignment within the Network Border Group of the Local Zone.
 </table>
 <br/>
 <br/>
-## Updating Cluster Files for CloudGuard HA in AWS Local Zones
-For High Availability (HA) clusters deployed in AWS Local Zones, you must update the CloudGuard AWS HA scripts on each cluster member. These scripts (`aws_had.py` and `aws_ha_test.py`) are responsible for HA state monitoring, AWS API queries, and cluster failover logic. Updating them ensures compatibility with Local Zone network behavior and AWS metadata services.
+## Revision History
+In order to check the template version, please refer to [sk125252](https://support.checkpoint.com/results/sk/sk125252#ToggleR8120gateway)
 
-### Cluster File Replacement Instructions (AWS)
-Follow the steps below on each cluster node.
-
-1. Upload the Updated Files
-    - Use SFTP or SCP to upload the new versions of the following scripts to each gateway:
-      - `aws_had.py`
-      - `aws_ha_test.py`
-    - Upload them to a temporary directory such as `/var/tmp`.
-
-2. Back Up the Existing AWS HA Scripts
-    - Before replacing the scripts, create backups:
-```
-cp $FWDIR/scripts/aws_had.py $FWDIR/scripts/aws_had.py_backup
-cp $FWDIR/scripts/aws_ha_test.py $FWDIR/scripts/aws_ha_test.py_backup
-```
-    - This ensures you can quickly restore the previous versions if needed.
-
-3. Replace the Existing Scripts
-    - Copy the new scripts into the `$FWDIR/scripts/` directory:
-```
-cp /var/tmp/aws_had.py $FWDIR/scripts/aws_had.py
-cp /var/tmp/aws_ha_test.py $FWDIR/scripts/aws_ha_test.py
-```
-    - Adjust the path if you uploaded them to a different location.
-
-4. Set Correct Permissions
-    - The scripts must be executable by the system but not writable:
-```
-chmod 550 $FWDIR/scripts/aws_had.py
-chmod 550 $FWDIR/scripts/aws_ha_test.py
-```
-    - This results in permissions: `-r-xr-x---` (550).
-
-5. Verify Successful Replacement
-    - Run:
-```
-ls -la $FWDIR/scripts/aws_had.py
-ls -la $FWDIR/scripts/aws_ha_test.py
-```
-    - Confirm:
-      - File dates reflect the new upload
-      - Permissions show 550
-      - File sizes match the updated scripts
-
-6. Test the Updated AWS HA Logic
-    - Run the AWS HA test script:
-```
-$FWDIR/scripts/aws_ha_test.py
-```
-    - Then review the log file for errors and initialization messages:
-```
-tail /opt/CPsuite-R82/fw1/log/aws_had.elg
-tail -f /opt/CPsuite-R82/fw1/log/aws_had.elg
-```
-
-7. Perform a Controlled Failover Test
-    - Validate cluster HA behavior in Local Zones:
-      - Trigger a manual failover (for example, using `clusterXL_admin down`).
-      - Observe routes, VIP ownership, and health checks.
-      - Monitor `aws_had.elg` during takeover.
-      - Confirm seamless transition of UDP, TCP, and ICMP flows.
-
-These steps confirm the updated AWS HA scripts are functioning correctly with Local Zone–specific networking.
-
-## Reference: Enhancing Cloud Security with Check Point CloudGuard in AWS Local Zones
-- See Check Point SecureKnowledge article: [sk183726](https://support.checkpoint.com/results/sk/sk183726).
-- Highlights:
-    - Architecture considerations and best practices for AWS Local Zones.
-    - Networking specifics for Local Zones (Network Border Groups, routing, and failover behavior).
-    - CloudFormation guidance and operational tips for CloudGuard High Availability.
-    - Troubleshooting pointers for metadata services and HA events.
-- Use this SK alongside the steps above when planning, deploying, and validating HA clusters in Local Zones.
-
+| Template Version | Description                                                                                                      |
+|------------------|------------------------------------------------------------------------------------------------------------------|
+| 20240704         | - R80.40 version deprecation.<br/>- R81 version deprecation.                                                     |
+| 20240519         | Add support for requiring use instance metadata service version 2 (IMDSv2) only                                  |
+| 20230923         | Add support for C5d instance type.                                                                               |
+| 20230521         | - Change default shell for the admin user to /etc/cli.sh<br/>- Add description for reserved words in hostname    |
+| 20230503         | Template version 20230503 and above supports Smart-1 Cloud token validation.                                     |
+| 20230411         | Improved deployment experience for gateways and clusters managed by Smart-1 Cloud.                               |
+| 20221123         | Templates version 20221120 and above support R81.20                                                              |
+| 20220606         | New instance type support                                                                                        |
+| 20210309         | First release of Check Point Security Management Server & Security Gateway (Standalone) Terraform module for AWS |
