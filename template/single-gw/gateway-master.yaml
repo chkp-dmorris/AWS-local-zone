@@ -483,7 +483,7 @@ Resources:
   GatewayStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://dmorris-test-localzones.s3.ap-southeast-2.amazonaws.com/gateway.yaml
+      TemplateURL: https://dmorris-test-localzones.s3.ap-southeast-2.amazonaws.com/single-gw/gateway.yaml
       Parameters:
         VPC: !GetAtt VPCStack.Outputs.VPCID
         PublicSubnet: !GetAtt VPCStack.Outputs.PublicSubnet1ID

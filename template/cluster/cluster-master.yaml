@@ -287,7 +287,6 @@ Parameters:
   AllocatePublicAddress:
     Description: >
       Allocate Elastic IPs for cluster members and the shared cluster IP. 
-      For Wavelength zone deployments, set this to false as EIPs are not recommended in Wavelength zones. 
       When false, no public IP addresses will be allocated.
     Type: String
     Default: true
@@ -455,7 +454,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     DependsOn: VPCStack
     Properties:
-      TemplateURL: https://dmorris-test-localzones.s3.ap-southeast-2.amazonaws.com/cluster.yaml
+      TemplateURL: https://dmorris-test-localzones.s3.ap-southeast-2.amazonaws.com/cluster/cluster.yaml
       Parameters:
         VPC: !GetAtt VPCStack.Outputs.VPCID
         PublicSubnet: !GetAtt VPCStack.Outputs.PublicSubnet1ID

@@ -288,7 +288,6 @@ Parameters:
   AllocatePublicAddress:
     Description: >
       Allocate an Elastic IP for the Security Gateway. When false, no public IP address will be allocated.
-      Note: Wavelength zones use Carrier IPs instead of EIPs.
     Type: String
     Default: true
     AllowedValues:
@@ -459,7 +458,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Condition: DeployLambda
     Properties:
-      TemplateURL: https://dmorris-test-localzones.s3.amazonaws.com/network-border-group-lambda.yaml
+      TemplateURL: https://dmorris-test-localzones.s3.amazonaws.com/common/network-border-group-lambda.yaml
       Parameters:
         SubnetId: !Ref PublicSubnet
 

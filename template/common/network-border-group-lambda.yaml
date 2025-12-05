@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Lambda function to determine Network Border Group for Local Zone and Wavelength Zone support (20250812)
+Description: Lambda function to determine Network Border Group for Local Zone support (20250812)
 
 Parameters:
   SubnetId:
