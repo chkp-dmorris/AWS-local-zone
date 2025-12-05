@@ -27,12 +27,12 @@ else:
 
 
 def is_aws():
-    """#TODO fixDocString"""
+    """#TODO fixDocstring"""
     return os.path.isfile('/etc/in-aws')
 
 
 def log(msg):
-    """#TODO fixDocString"""
+    """#TODO fixDocstring"""
     sys.stderr.write(msg)
 
 
@@ -73,7 +73,7 @@ def get(url, proxy=None):
 
 
 def test():
-    """#TODO fixDocString"""
+    """#TODO fixDocstring"""
     if not is_aws():
         raise Exception('This does not look like an AWS environment\n')
 
@@ -294,7 +294,7 @@ def update_cphaconf(cphaconf: dict, region: str) -> None:
 
 
 def main():
-    """#TODO fixDocString"""
+    """#TODO fixDocstring"""
     try:
         test()
     except Exception:

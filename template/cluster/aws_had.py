@@ -335,7 +335,6 @@ def update_cross_az_cluster_map(interface, map_path, describe_flag=True):
         logger.error("Failed to import /etc/cloud_config_utils.py")
         return
 
-    global _cross_az_cluster_ip_map
     internal_if = is_internal_interface_type(interface)
     if internal_if or is_cross_az_map_file_empty(CROSS_AZ_CLUSTER_SEC_IP_MAP):
         return
@@ -1185,11 +1184,8 @@ def init_conf(args):
         conf['remote'] = False
         r = aws.metadata(
             '{}/placement/availability-zone'.format(aws.META_DATA))
-        # --- PATCH START ---
-        # Use only the region part, works for both standard and local zones
-        az = r if isinstance(r, str) else r.decode('utf-8')
+        az = r.strip()
         conf['EC2_REGION'] = '-'.join(az.split('-')[:3])
-        # --- PATCH END ---
         conf['cluster_mode'] = mode.load_cluster_mode()
         logger.debug('Cluster operation mode: {}'.format(conf['cluster_mode']))
         conf['deploy_mode'] = mode.load_deploy_mode()
