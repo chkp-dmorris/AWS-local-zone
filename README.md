@@ -11,7 +11,9 @@ This repository contains CloudFormation templates for deploying Check Point Secu
    - Ensure your VPC and subnets are created in the desired region or Local Zone.
    - Collect the required parameters (VPC ID, subnet IDs, route table, key pair, etc.).
    - For Local Zone deployments, set `IsLocalZoneDeployment: true` and ensure your subnets are in a Local Zone.
-  
+3. **Post-Deployment: Update AWS HA Scripts (Cluster Deployments)**
+   - After deploying a cluster, update the AWS HA management scripts on each Check Point unit (see [File Update Instructions](#file-update-instructions-aws_hadpy-and-aws_ha_testpy) below).
+
 ## Important: Upload Nested Templates to S3
 For any nested CloudFormation stacks (such as the Lambda template for network border group detection), you **must** upload the template file (e.g., `network-border-group-lambda.yaml`) to an S3 bucket in your AWS account.
 
@@ -53,7 +55,58 @@ Replace `ap-southeast-2-per-1a` and `ap-southeast-2` with your desired Local Zon
   - The subnet and EIP are in the same network border group.
   - The Lambda output matches the subnet’s network border group.
 - If stack outputs are missing, the stack may have failed before outputs were created. Fix input parameters and retry.
+## File Update Instructions: aws_had.py and aws_ha_test.py (Cluster HA Only)
 
+After deploying a **Cluster (HA)** deployment, you must update the following AWS HA management scripts on each Check Point unit:
+
+**Files to Update:**
+- `aws_had.py` → `/opt/CPsuite-R82/fw1/scripts/aws_had.py`
+- `aws_ha_test.py` → `/opt/CPsuite-R82/fw1/scripts/aws_ha_test.py`
+
+### Steps for File Replacement
+
+1. **SFTP the updated files to each unit**
+   - Transfer `aws_had-local.txt` and `aws_ha_test-local.txt` to each unit
+
+2. **Back up the existing files**
+   ```sh
+   cp /opt/CPsuite-R82/fw1/scripts/aws_had.py /opt/CPsuite-R82/fw1/scripts/aws_had.py_backup
+   cp /opt/CPsuite-R82/fw1/scripts/aws_ha_test.py /opt/CPsuite-R82/fw1/scripts/aws_ha_test.py_backup
+   ```
+
+3. **Copy the new files and rename them**
+   ```sh
+   cp aws_had-local.txt /opt/CPsuite-R82/fw1/scripts/aws_had.py
+   cp aws_ha_test-local.txt /opt/CPsuite-R82/fw1/scripts/aws_ha_test.py
+   ```
+
+4. **Set the correct permissions (r-xr-x---)**
+   ```sh
+   chmod 550 /opt/CPsuite-R82/fw1/scripts/aws_had.py
+   chmod 550 /opt/CPsuite-R82/fw1/scripts/aws_ha_test.py
+   ```
+
+5. **Verify permissions and files**
+   ```sh
+   ls -la /opt/CPsuite-R82/fw1/scripts/aws_had.py
+   ls -la /opt/CPsuite-R82/fw1/scripts/aws_ha_test.py
+   ```
+
+6. **Test and confirm the changes**
+   - Run the test script on each member:
+     ```sh
+     /opt/CPsuite-R82/fw1/scripts/aws_ha_test.py
+     ```
+   - Monitor the daemon logs:
+     ```sh
+     tail -f /var/log/opt/CPsuite-R82/fw1/log/aws_had.elg
+     ```
+     Note: You may not see much initial output.
+
+   - Test failover and monitor logs again:
+     ```sh
+     tail -f /var/log/opt/CPsuite-R82/fw1/log/aws_had.elg
+     ```
 ## References
 - [AWS Local Zones Features](https://aws.amazon.com/about-aws/global-infrastructure/localzones/features/)
 - [Check Point support for AWS Local Zones](https://support.checkpoint.com/results/sk/sk183726)

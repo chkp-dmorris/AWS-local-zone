@@ -39,9 +39,19 @@ TemplateURL: https://<your-bucket-name>.s3.amazonaws.com/network-border-group-la
 If you do not update the Lambda location, the deployment will fail in Local Zones.
 
 ## How to Use These Templates
-1. **Upload Lambda Template (Local Zones only):**
+1. **Prepare Your S3 Bucket and Update Template References:**
    - Upload `network-border-group-lambda.yaml` from the `common` folder to your S3 bucket.
-   - Update the `TemplateURL` in your cluster template to point to your S3 location.
+   - Upload your chosen cluster template (`cluster-master.yaml` or `cluster.yaml`) to your S3 bucket.
+   - Update the `TemplateURL` references in both templates to point to your S3 location:
+     - In `cluster-master.yaml`: Update the `ClusterStack` resource's `TemplateURL` to point to your S3 location of `cluster.yaml`
+     - In `cluster.yaml`: Update the `LambdaStack` resource's `TemplateURL` to point to your S3 location of `network-border-group-lambda.yaml`
+   
+   **Example:** 
+   ```
+   TemplateURL: https://<your-bucket-name>.s3.amazonaws.com/cluster.yaml
+   TemplateURL: https://<your-bucket-name>.s3.amazonaws.com/network-border-group-lambda.yaml
+   ```
+
 2. **Choose Your Deployment:**
    - Use `cluster-master.yaml` to create a new VPC and deploy a cluster.
    - Use `cluster.yaml` to deploy a cluster into an existing VPC.
@@ -54,6 +64,59 @@ If you do not update the Lambda location, the deployment will fail in Local Zone
    - If deployment fails in Local Zones, verify the Lambda template location and TemplateURL.
 
 For more details, refer to the [CloudGuard Network for AWS Security Cluster R80.20 and Higher Deployment Guide](https://sc1.checkpoint.com/documents/IaaS/WebAdminGuides/EN/CloudGuard_Network_for_AWS_Cluster_DeploymentGuide/Default.htm).
+
+## Post-Deployment: File Update Instructions (aws_had.py and aws_ha_test.py)
+
+After deploying a **Cluster (HA)** using these templates, you must update the following AWS HA management scripts on each Check Point unit:
+
+**Files to Update:**
+- `aws_had.py` → `/opt/CPsuite-R82/fw1/scripts/aws_had.py`
+- `aws_ha_test.py` → `/opt/CPsuite-R82/fw1/scripts/aws_ha_test.py`
+
+### Steps for File Replacement
+
+1. **SFTP the updated files to each unit**
+   - Transfer `aws_had-local.txt` and `aws_ha_test-local.txt` to each unit
+
+2. **Back up the existing files**
+   ```sh
+   cp /opt/CPsuite-R82/fw1/scripts/aws_had.py /opt/CPsuite-R82/fw1/scripts/aws_had.py_backup
+   cp /opt/CPsuite-R82/fw1/scripts/aws_ha_test.py /opt/CPsuite-R82/fw1/scripts/aws_ha_test.py_backup
+   ```
+
+3. **Copy the new files and rename them**
+   ```sh
+   cp aws_had-local.txt /opt/CPsuite-R82/fw1/scripts/aws_had.py
+   cp aws_ha_test-local.txt /opt/CPsuite-R82/fw1/scripts/aws_ha_test.py
+   ```
+
+4. **Set the correct permissions (r-xr-x---)**
+   ```sh
+   chmod 550 /opt/CPsuite-R82/fw1/scripts/aws_had.py
+   chmod 550 /opt/CPsuite-R82/fw1/scripts/aws_ha_test.py
+   ```
+
+5. **Verify permissions and files**
+   ```sh
+   ls -la /opt/CPsuite-R82/fw1/scripts/aws_had.py
+   ls -la /opt/CPsuite-R82/fw1/scripts/aws_ha_test.py
+   ```
+
+6. **Test and confirm the changes**
+   - Run the test script on each member:
+     ```sh
+     /opt/CPsuite-R82/fw1/scripts/aws_ha_test.py
+     ```
+   - Monitor the daemon logs:
+     ```sh
+     tail -f /var/log/opt/CPsuite-R82/fw1/log/aws_had.elg
+     ```
+     Note: You may not see much initial output.
+
+   - Test failover and monitor logs again:
+     ```sh
+     tail -f /var/log/opt/CPsuite-R82/fw1/log/aws_had.elg
+     ```
 
 ## Security Cluster
 
