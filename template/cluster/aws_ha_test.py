@@ -54,7 +54,7 @@ else:
 
 
 def get(url, proxy=None):
-    """#TODO fixDocString"""
+    """#TODO fixDocstring"""
     cmd = ['curl_cli', '--request', 'PUT',
            'http://169.254.169.254/latest/api/token',
            '--header', 'X-aws-ec2-metadata-token-ttl-seconds: 60']
@@ -99,8 +99,15 @@ def test():
     log('\nTesting metadata connectivity...\n')
     try:
         az = get(META_DATA + '/placement/availability-zone').strip()
-        # Always use the region only (strip everything after the second dash)
-        region = '-'.join(az.split('-')[:3])
+        az_parts = az.split('-')
+        # Normal AZ example: "us-east-1a" -> region is "us-east-1" (strip trailing letter)
+        # Local Zone example: "us-west-2-lax-1a" -> region is "us-west-2" (first 3 parts)
+        if len(az_parts) > 3:
+            region = '-'.join(az_parts[:3])
+        elif len(az_parts) == 3:
+            region = az[:-1]
+        else:
+            raise ValueError('Unexpected availability zone format: {}'.format(az))
         mac = get(
             META_DATA + '/network/interfaces/macs/').split('\n')[0].strip()
         vpc_id = get(META_DATA + '/network/interfaces/macs/' + mac +

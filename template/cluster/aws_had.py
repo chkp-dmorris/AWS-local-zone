@@ -431,7 +431,6 @@ def insert_to_cross_az_cluster_ip_map(local_ip, remote_ip, eip):
         }
     }
     """
-    global _cross_az_cluster_ip_map
     _cross_az_cluster_ip_map[remote_ip] = {}
     _cross_az_cluster_ip_map[remote_ip][LOCAL_MEM_PRIVATE_IP] = local_ip
     _cross_az_cluster_ip_map[remote_ip][REMOTE_MEM_PRIVATE_IP] = remote_ip
@@ -562,7 +561,6 @@ def remove_invalid_pair_from_exist_cross_az_cluster_ip_map(local_secondary_ips, 
     return: Filter current cross_az_cluster_ip_map from invalid pairs
     Note: This is called only for Cross AZ Cluster
     """
-    global _cross_az_cluster_ip_map
     if not _cross_az_cluster_ip_map:
         return None
     invalid_pairs = []
@@ -1185,7 +1183,16 @@ def init_conf(args):
         r = aws.metadata(
             '{}/placement/availability-zone'.format(aws.META_DATA))
         az = r.strip()
-        conf['EC2_REGION'] = '-'.join(az.split('-')[:3])
+        az_parts = az.split('-')
+        if len(az_parts) >= 3:
+            # Normal AZ example: "us-east-1a" -> region is "us-east-1" (strip trailing letter)
+            # Local Zone example: "us-west-2-lax-1a" -> region is "us-west-2" (first 3 parts)
+            if len(az_parts) > 3:
+                conf['EC2_REGION'] = '-'.join(az_parts[:3])
+            else:
+                conf['EC2_REGION'] = az[:-1]
+        else:
+            raise ValueError("Unexpected availability zone format: {}".format(az))
         conf['cluster_mode'] = mode.load_cluster_mode()
         logger.debug('Cluster operation mode: {}'.format(conf['cluster_mode']))
         conf['deploy_mode'] = mode.load_deploy_mode()
