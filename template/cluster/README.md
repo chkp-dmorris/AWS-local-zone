@@ -76,7 +76,7 @@ After deploying a **Cluster (HA)** using these templates, you must update the fo
 ### Steps for File Replacement
 
 1. **SFTP the updated files to each unit**
-   - Transfer `aws_had-local.txt` and `aws_ha_test-local.txt` to each unit
+   - Transfer `aws_had-local.py` and `aws_ha_test-local.py` to each unit
 
 2. **Back up the existing files**
    ```sh
@@ -144,3 +144,4 @@ After deploying a **Cluster (HA)** using these templates, you must update the fo
 </table>
 <br/>
 <br/>
+
